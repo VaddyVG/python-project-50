@@ -37,13 +37,14 @@ jobs:
           chmod +x ./cc-test-reporter
           ./cc-test-reporter before-build
 
-      # Здесь добавьте шаг для запуска тестов (например, pytest)
-      - name: Run tests
+      - name: Run tests with coverage
         run: |
-          make test
+          # Запускаем тесты с покрытием и генерируем файл в формате XML
+          make coverage
 
       - name: Send test coverage to Code Climate
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         run: |
-          ./cc-test-reporter after-build --exit-code $?
+          # Отправляем отчёт о покрытии в Code Climate
+          ./cc-test-reporter after-build --exit-code $? -t coverage.py
