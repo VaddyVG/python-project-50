@@ -1,0 +1,6 @@
+- key1: value1
++ key1: new_value1
+- key2: true
++ key2: false
+- key3: 3
++ key4: new_value
