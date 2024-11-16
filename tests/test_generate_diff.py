@@ -1,70 +1,40 @@
 import pytest
-from gendiff.scripts.generate_diff import generate_diff
+import json
+from gendiff.generate_diff import generate_diff
 
 
-@pytest.fixture
-def data1():
-    return {
-        "host": "hexlet.io",
-        "timeout": 50,
-        "proxy": "123.234.53.22",
-        "follow": False
-    }
+TESTS_DATA = [
+    ('tests/fixtures/file1.json', 'tests/fixtures/file2.json',
+     'stylish', 'tests/fixtures/plane_diff.txt'),
+    ('tests/fixtures/file1.yaml', 'tests/fixtures/file2.yaml',
+     'stylish', 'tests/fixtures/plane_diff.txt'),
+    ('tests/fixtures/file1_nested.json', 'tests/fixtures/file2_nested.json',
+     'stylish', 'tests/fixtures/nested_diff.txt'),
+    ('tests/fixtures/file1_nested.yaml', 'tests/fixtures/file2_nested.yaml',
+     'stylish', 'tests/fixtures/nested_diff.txt'),
+    ('tests/fixtures/file1_nested.json', 'tests/fixtures/file2_nested.json',
+     'plain', 'tests/fixtures/nested_diff_in_plain.txt'),
+    ('tests/fixtures/file1_nested.yaml', 'tests/fixtures/file2_nested.yaml',
+     'plain', 'tests/fixtures/nested_diff_in_plain.txt'),
+    ('tests/fixtures/file1_nested.json', 'tests/fixtures/file2_nested.json',
+     'json', 'tests/fixtures/nested_diff_in_json.txt'),
+    ('tests/fixtures/file1_nested.yaml', 'tests/fixtures/file2_nested.yaml',
+     'json', 'tests/fixtures/nested_diff_in_json.txt'),
+]
 
 
-@pytest.fixture
-def data2():
-    return {
-        "timeout": 20,
-        "verbose": True,
-        "host": "hexlet.io"
-    }
+def get_correct_file(path, fmt):
+    with open(path) as file:
+        if fmt == "json":
+            return json.loads(file.read())
+        else:
+            return file.read()
 
 
-def test_generate_diff_plain(data1, data2):
-    expected = """{
-  - follow: false
-    host: hexlet.io
-  - proxy: 123.234.53.22
-  - timeout: 50
-  + timeout: 20
-  + verbose: true
-}"""
-    assert generate_diff(data1, data2) == expected
-
-
-def test_generate_diff_empty_data():
-    data1 = {}
-    data2 = {}
-    expected = "{}"
-    assert generate_diff(data1, data2) == expected
-
-
-def test_generate_diff_added_key():
-    data1 = {"key1": "value1"}
-    data2 = {"key1": "value1", "key2": "value2"}
-    expected = """{
-    key1: value1
-  + key2: value2
-}"""
-    assert generate_diff(data1, data2) == expected
-
-
-def test_generate_diff_removed_key():
-    data1 = {"key1": "value1", "key2": "value2"}
-    data2 = {"key1": "value1"}
-    expected = """{
-    key1: value1
-  - key2: value2
-}"""
-    assert generate_diff(data1, data2) == expected
-
-
-def test_generate_diff_changed_value():
-    data1 = {"key1": "value1"}
-    data2 = {"key1": "value2"}
-    expected = """{
-  - key1: value1
-  + key1: value2
-}"""
-    assert generate_diff(data1, data2) == expected
+@pytest.mark.parametrize('file1, file2, fmt, correct_path', TESTS_DATA)
+def test_generate_diff(file1, file2, fmt, correct_path):
+    correct_file = get_correct_file(correct_path, fmt)
+    if fmt == "json":
+        assert json.loads(generate_diff(file1, file2, fmt)) == correct_file
+    else:
+        assert generate_diff(file1, file2, fmt) == correct_file
