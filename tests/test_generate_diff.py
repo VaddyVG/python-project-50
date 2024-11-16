@@ -1,6 +1,6 @@
 import pytest
 import json
-from gendiff import generate_diff
+from gendiff.generate_diff import generate_diff
 
 
 TESTS_DATA = [
