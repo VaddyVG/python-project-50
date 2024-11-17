@@ -6,3 +6,7 @@ dist/
 coverage.xml
 .coverage
 *.egg-info
+.cache/
+*.log
+*.tmp
+*.swp
